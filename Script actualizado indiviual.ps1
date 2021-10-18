@@ -1,4 +1,4 @@
-#He actualizado el script anterior para incluir los comandos para comprobar la relacion de confianza entre 2 bosques
+4700 MB4700 MB#He actualizado el script anterior para incluir los comandos para comprobar la relacion de confianza entre 2 bosques
 #
 Write-Host "Los parámetros son:"$Param1 " " $Param2
 pause
@@ -9,7 +9,7 @@ function PromocionarCD
 Write-Host "Ejecuto el comando para promocionar a CD"
 $dominioFQDN = "edu-gva.es"
 $dominioNETBIOS = "EDU-GVA"
-$adminPass = "Hola01"
+$adminPass = "Chubbyemu01uninstall-ADDSDomainController "
 Import-Module ADDSDeployment
 Install-ADDSForest
 -CreateDnsDelegation:$False `
@@ -24,11 +24,13 @@ Install-ADDSForest
 -SysvolPath "C:\Windows\SYSVOL" `
 -Force:$true
 }
-function DespromocionarCD
+function DespromocionarSubdominio
 {
 Write-Host "Ejecuto el comando para despromocionar el CD"
-Import-Module ADDSDeployment
-Uninstall-ADDSDomainController -DemoteOperationMasterRole:$true -ForceRemoval:$true -Force:$true
+uninstall-ADDSDomainController
+Import-Module ADDSDeploy
+Uninstall-ADDSDomainController-ForceRemoval:$true -Force:$true
+Uninstall-WindowsFeature -Name AD-Domain-Service, DNS -Confirm:$false
 }
 function PromocionarCDreplica
 {
@@ -103,7 +105,7 @@ function mostrarMenu
      Write-Host "================ $Titulo================" 
       
      
-     Write-Host "1) Promocionar subdominio
+     Write-Host "1) Promocionar subdominio"
      Write-Host "2) Despromocionar subdominio" 
      Write-Host "3) Promocion a dominio en nuevo bosque" 
      Write-Host "4) Despromocion de dominio en nuevo bosque"     
