@@ -33,10 +33,10 @@ Uninstall-ADDSDomainController -DemoteOperationMasterRole:$true -ForceRemoval:$t
 function PromocionarCDreplica
 {
 Write-Host "Ejecuto el comando para promocionar la replica"
-$nameServer="Master-edu-repl"
-$addressIP="192.168.1.202"
+$nameServer="Master-edu"
+$addressIP="192.168.1.201"
 $networkInternal="Ethernet 1"
-Rename-Computer -NewName "Master-edu-repl"
+Rename-Computer -NewName "Master-edu"
 Get-NetAdapter –name $networkInternal | Remove-NetIPAddress -Confirm:$false
 Get-NetAdapter –name $networkInternal | New-NetIPAddress –addressfamily IPv4 –ipaddress 192.168.1.202 –prefixlength 24 –type unicast
 Restart-Computer -force
@@ -48,7 +48,7 @@ Install-ADDSDomainController `
 -Credential (Get-Credential) `
 -SiteName "Default-First-Site-Name" `
 -InstallDNS:$true `
--NoGlobalCatalog:$false `
+-NoGlobalCatalog:$false ` 
 -CreateDNSDelegation:$false `
 -ReplicationSourceDC "Master-edu-es.edu-gva.es" `
 -CriticalReplicationOnly:$false `
@@ -83,8 +83,11 @@ function SaberServicios
 Write-Host "Ejecuto el comando para saber servicios instalados"
 Get-Windowsfeature
 }
-
-
+function ComprobarRelacion
+{
+Write-Host "Ejecuto el comando para comprobar la relacion de confianza"
+Netdom Trust X /D:X /Verify
+}
 
 #Función que nos muestra un menú por pantalla con 3 opciones y una última para salir del mismo
 # La función “mostrarMenu”, puede tomar como parámetro un título y devolverá por pantalla 
@@ -100,14 +103,11 @@ function mostrarMenu
      Write-Host "================ $Titulo================" 
       
      
-     Write-Host "1) Promocionar CD" 
-     Write-Host "2) Despromocionar CD" 
-     Write-Host "3) Promocionar CD replica" 
-     Write-Host "4) Replicar Datos"     
-     Write-Host "5) Adaptador"     
-     Write-Host "6) Usuario y SSID"     
-     Write-Host "7) Saber servicios instalados"
-     Write-host "8) Comprobar relacion de confianza entre 2 bosques"
+     Write-Host "1) Promocionar subdominio
+     Write-Host "2) Despromocionar subdominio" 
+     Write-Host "3) Promocion a dominio en nuevo bosque" 
+     Write-Host "4) Despromocion de dominio en nuevo bosque"     
+     Write-host "5) Comprobar relacion de confianza entre 2 bosques"
      Write-Host "S) Presiona 'S' para salir" 
 }
 #Bucle principal del Script. El bucle se ejecuta de manera infinita hasta que se cumple
@@ -137,22 +137,10 @@ do
                 Clear-Host  
                 ReplicarDatos
                 pause
-           } '5' { 
-                Clear-Host  
-                Adaptador
-                pause
-           } '6' { 
-                Clear-Host  
-                SSID
-                pause
-          
-           } '7' { 
-                Clear-Host  
-                Saberservicios 
-                pause
-           } '8' {
-               Netdom Trust <TrustingDomain> /D:<TrustedDomain> /Verify
-           
+         
+           } '5' {
+                Comprobar relacion de confianza entre 2 bosques
+               Netdom Trust X /D:X /Verify
            } 's' {
                 'Saliendo del script...'
                 return 
